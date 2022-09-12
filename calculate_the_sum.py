@@ -13,3 +13,7 @@ def calculate_the_sum_of_evens_in_a_list(list_of_numbers):
 def write_list_of_numbers_to_file(list_of_numbers):
     file = open("output.txt", "w")
     file.write(", ".join(", ".join(str(n) for n in list_of_numbers)))
+
+
+def calculate_the_average_of_numbers_in_a_list(list_of_numbers):
+    return sum(list_of_numbers) / len(list_of_numbers)
