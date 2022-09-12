@@ -16,3 +16,5 @@ def write_list_of_numbers_to_file(list_of_numbers):
     average_as_string = "Avg:" + str(calculate_the_average_of_numbers_in_a_list(list_of_numbers))
     output_string = list_of_numbers_as_string + "\n" + average_as_string
     file.write(output_string)
+
+    
