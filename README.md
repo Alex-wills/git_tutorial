@@ -1,0 +1,239 @@
+# YSD
+
+- Pull repo
+- make branch
+
+## Getting started
+
+Look at the *runtime.txt* file to see the required python version for this repo.
+
+We use **poetry** to manage our dependencies which simply uses `poetry install` to install the required modules. This can be done after setting up a python interpreter for the required version or automatically done via pycharm by configuring a poetry environment. 
+
+This will install all of the required packages from the *project.toml* file and update them to the version according to the *poetry.lock* file.
+
+You will also need to install **Docker** for pulling the containers required to build this project later on.
+
+
+## Code standards
+We use various python tools to enforce a consistent code style across the app, this helps to ensure that code reviews relate to actual implementation details and don't devolve into quibbling over code style.
+
+The tools we use are as follows
+- black
+- isort
+- flake8 (and friends)
+
+> Before making any changes to the code, you should make sure that you run the above code formatters to fall inline with the typical code standard of this repo.
+
+## Setting up your environment 
+
+In order to run the server, you will need to set up your environment.
+
+### *Setting Up Environment Variables*
+The .env.sample file contains useful environment variables that can be considered global for a Developer environment. You should merely need to copy .env.sample to .env and much of the app will work.
+
+You will also need to to setup your personal environment. These are included in the local.env.template or as a block at the top of the .env.sample. You will need to have these set up for you personally, or you can temporarily borrow another developer's.
+
+PyCharm users should update the local.env and add it in addition to the .env, as this makes updates easier. Those who like directly running the app will also find it easier to maintain a local.env and copy it over to the .env during upgrades.
+
+You can have as many *.env files in the project root as you like and git will ignore them, so you can switch local.envs if required.
+
+In addition to these, you will need to set up the `DJANGO_CONFIGURATION` and `DJANGO_SETTINGS_MODULE` variables before running Django. These values tell django (or more specifically django-configurations) which configuration to use, and where to find it. PyCharm users can do this directly in the configuration, while those running them directly can choose to add them to the .env. The values are:
+
+```
+DJANGO_SETTINGS_MODULE=core_app.settings
+DJANGO_CONFIGURATION=DevLoc
+```
+
+## Signing in to Docker and AWS
+
+### *Docker*
+To sign into docker using your github credentials create a PAT (Personal Access Token) with the relevant access appropriate on your GitHub account and use it in place of `$GITHUB_TOKEN` and your username for `$GITHUB_USER`:
+
+`echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u GITHUB_USER --password-stdin`
+
+
+### *AWS Steps*
+1. Install **AWS CLI v2** 
+2. Run `aws configure sso`
+3. Paste https://d-93671699ca.awsapps.com/start#/ as the start url
+4. Select `eu-west-1` 
+5. Log in to google sso when it shows up
+6. Follow the steps
+7. Configure the devloper environment variables in your *.aws/credentials* file or run `aws configure` and fill them in based off the variables stated on the AWS management console opened above.
+8. Run `aws ecr get-login-password --region eu-west-2 --profile $YOUR_PROFILE | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/` where *$YOUR_PROFILE* will be stated in the config file. 
+
+`aws ecr get-login-password --region eu-west-2 --profile developers-822386150620 | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/`
+
+> After doing this initially and your *.aws/config* and *.aws/credentials* are correct, you can just use your profile tag to log in with the command 
+
+
+## Docker (pulling the containers and running them)
+
+Once you have logged in to both Docker with GitHub and set up AWS credentials to get access to refdata, you should be able to pull all of the containers without errors.
+
+To do this we can run `docker-compose up` or `docker-compose up -d` if we would like it to run in the background.
+
+
+## Testing
+
+### *Docker*
+To run the scripts to use a test look at the *scripts* file to see which one you would like to run. An example of this is to run the unit tests by running:
+`docker-compose exec -T web sh ./scripts/run_unit_tests.sh`
+
+
+### *Pycharm*
+Use **EnvFile** the pycharm extension to edit the configuration on the test you are trying to run. Select your *.env* file to use (Press the eye symbol to show hidden files) so that the test uses your environment variables you want to use.
+
+## Required environment variables
+A .env.sample file is included for convenience. This includes dummy data for environment variables.
+
+You will need to copy this file to .env and update some variables for the app to start properly. You will only need to do this once, plus occasionally update it when someone adds new variables. Typically you'll be able to tell if your environment is broken because you'll get a million failing tests and either very descriptive errors (from django-configurations) or absolutely garbage errors (from something like pylibmc). If in doubt, ask around - with any luck somebody has a working environment.
+
+If you add functionality requiring a new environment variable, make sure to update the sample - this serves as useful documentation for other devs. You should either include a real value or, if the data is sensitive (e.g. credentials) or personal (e.g. points to your personal database) include a dummy value that explains the structure, e.g. `MY_DATABASE_URL=postgres://user:password@some.server.aws.com:5432/ops_your_name`
+
+We've also created a local.env for personal data. If you have this set up in PyCharm, you should be able to simple delete the old .env and use the .env.sample without any problems. If you wish to use heroku local:run, you'll need to copy your local.env into your .env (we've left space for this). The local.env.template provides a template for this.
+
+## Developing
+This section has useful information for during the development process.
+
+## Git
+We use git for version control. This allows easy development of the code.
+
+To start working on the code, checkout a new branch:
+`
+git checkout -b <branch_name>
+`
+
+### Naming branches
+We've found it useful to use ticket numbers from the JIRA system where possible (e.g. APP-921, CP-1234)
+
+Some branch_names cannot use tickets, especially when merging or releasing to uat, or performing hot bugfixes.
+Branches should then be called by saying what it is, the date and then a short description.
+
+So, a uat release branch will look like uat_release_090518_overpayments
+
+
+## To run the Python development server:
+
+pip install -r requirements.txt
+python manage.py runserver
+Running the server (Heroku/Gunicorn style)
+To collect the front-end resources and python template infrastructure
+
+heroku local:run python manage.py runserver
+Alternatively to run it under Gunicorn
+
+gunicorn --config gunicorn_config/guniconf.py core_app.wsgi
+Testing
+Functional Tests
+The functional tests can be run against a local Dockerized instance of the Yobota platform or any instance of the platform hosted on the cloud. Follow the instructions below for each one.
+
+#####Set up a Dockerized instance of the Yobota platform
+
+You will need the following binaries installed:
+
+docker python
+
+Temporarily the docker images are stored on Github package registry. To pull them use this guide. When they will be stored in ECR you will need access keys for the Yobota AWS account to be able to pull. The access keys should be used to configure the AWS CLI.
+
+The following apps are initialised using Docker to facilitate this testing:
+
+Ops database
+Redis
+Ref data service
+Distribution API
+Integrations
+Quote store
+1 You will first need to setup the integrations.env.list based on the sample provided in the scripts folder.
+
+2 Copy the variables from scripts/local_stack_vars to your main .env (without the export part)
+
+3 Start the local stack using the following command from the project root
+
+./scripts/start_local_stack.sh
+You can stop the local stack with the following command:
+
+./scripts/stop_local_stack.sh
+4 Start an instance of yobotastaffdemo and set the correct TESTS_BASE_URL in your .env
+
+e.g. ` TESTS_BASE_URL="http://127.0.0.1:8001" `
+#####Set up for running against a remote environment
+
+ask Pavel (this will be updated soon)
+Running the tests
+After you setup your environment you can run the tests using the following command or through pycharm
+
+`./scripts/run_local_functional_tests.sh `
+To include code coverage add the --coverage flag:
+
+./scripts/run_local_functional_tests.sh --coverage
+
+./scripts/run_local_functional_tests.sh --include-stack
+
+Running the tests on github
+To trigger the workflow on any PR you will have to make a commit that includes 'run tests' in the commit message. This can be done with
+
+`git commit --allow-empty -m 'run tests'` 
+which makes an empty commit so that we don't mess with the messages of the normal commits.
+
+If you would like to run only some of the tests you can do:
+
+`git commit --allow-empty -m 'run tests lending/savings/distributors'` 
+or u can combine them. e.g:
+
+`git commit --allow-empty -m 'run tests savings distributors'`
+For the following branches the workflow will be triggered automatically when a pull request is merged:
+
+future
+chetwood-uat
+chetwood-production
+Unit Tests
+Tests can be run by
+
+heroku local:run scripts/runtests.sh
+This simulates the way they are run on Heroku.
+
+Tests can be run internally on PyCharm too. However we have weird and patchy Django support. We're trying to fix this and the easiest way for now is to ask someone how to do it.
+
+The PyCharm test runner at the moment is Unittest.
+
+Important notes
+Testing
+The settings.TEST_RUNNER value has been deliberately overridden to core_app.setup_helpers.NoDbTestRunner which stops the typical django test database being set up and torn down when manage.py test is called. This is because, in general, Yobota apps should only be using the platform database for functional usecases
+
+
+## Private Repository
+The private repository is accessed by the option at the top of the requirements.txt file. If it goes away, look at an older version and reintroduce it.
+
+## Configuration
+Using S3 for Static (served) and Media (uploaded) content
+Two further environment variables can be set up to capture S3 buckets used for content management
+
+however the preference is to use WhiteNoise to serve Static files (per the current set up) and S3 for Media
+
+CLIENT_SAVINGS_APP_DOCS_URL : S3 bucket name, used to store static content served by the web page
+AWS_ACCESS_KEY_ID: required to access the S3 buckets
+AWS_SECRET_ACCESS_KEY: required to access the S3 buckets
+reference here:
+
+http://agiliq.com/blog/2014/06/heroku-django-s3-for-serving-media-files/
+https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/
+http://whitenoise.evans.io/en/stable/
+https://devcenter.heroku.com/articles/s3
+https://devcenter.heroku.com/articles/s3-upload-python
+Using Auth0 for access controls
+Important
+USE_AUTH0_WORKFLOW is required in order to use auth0 as an identity provider.
+The following keys are required if the application needs Auth0 for login support
+
+host_organisation_name_AUTH0_CLIENT_ID
+host_organisation_name_AUTH0_CLIENT_SECRET
+host_organisation_name_AUTH0_DOMAIN
+host_organisation_name_AUTH0_CONNECTION The name of the Auth0 remote database for API calls
+host_organisation_name_AUTH0_CUST_CALLBACK_URL customer specific callback
+These are found on your auth0 application settings. Additionally, the following are useful:
+
+Host_organisation_name_AUTH0_JWT -- required to call the auth0 management API (for user CRUD scopes only)
+the AUTH0_CALLBACK_URL must be a full URL: https://app.domain.uk/callback that is set up within your application
+
+Each Host organisation name in order to facilitate different branded emails and branded auth0 widgets, have their own separate Auth0 credentials, i.e. Host_organisation_name_AUTH0_CLIENT_ID would be LIVELEND_AUTH0_CLIENT_ID
