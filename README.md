@@ -55,16 +55,22 @@ To sign into docker using your github credentials create a PAT (Personal Access 
 ### *AWS Steps*
 1. Install **AWS CLI v2** 
 2. Run `aws configure sso`
-3. Paste https://d-93671699ca.awsapps.com/start#/ as the start url
+3. Paste https://chetwood.awsapps.com/start/#/ as the start url
 4. Select `eu-west-1` 
-5. Log in to google sso when it shows up
-6. Follow the steps
-7. Configure the devloper environment variables in your *.aws/credentials* file or run `aws configure` and fill them in based off the variables stated on the AWS management console opened above.
-8. Run `aws ecr get-login-password --region eu-west-2 --profile $YOUR_PROFILE | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/` where *$YOUR_PROFILE* will be stated in the config file. 
+5. Select `Yobota-Master, cloudmaster+master@yobota.xyz (822386150620)`
+6. Select `developers-y`
+7. Parameters are `eu-west-2`, `json`, `developers-y-822386150620`
+8. Log in to google sso when it shows up and authorise access.
+9. Configure the developer environment variables in your *.aws/credentials* file or run `aws configure` and copy them in based off the variables when following the link provided and doing the steps: 
+(*AWS Account (4) -> Yobota-Master -> developers-y -> Command line or programmatic access -> Option 2*)
 
-`aws ecr get-login-password --region eu-west-2 --profile developers-822386150620 | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/`
+> After doing this initially and your *.aws/config* and *.aws/credentials* are correct, you can just use your profile tag to log in with the command `aws sso login --profile $YOUR_PROFILE without the need of repeating these steps.` 
 
-> After doing this initially and your *.aws/config* and *.aws/credentials* are correct, you can just use your profile tag to log in with the command 
+
+Finally run `aws ecr get-login-password --region eu-west-2 --profile $YOUR_PROFILE | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/` where *$YOUR_PROFILE* will be stated in the config file. 
+
+*Example:* `aws ecr get-login-password --region eu-west-2 --profile developers-y-822386150620 | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/`
+
 
 
 ## Docker (pulling the containers and running them)
