@@ -39,6 +39,8 @@ You can have as many *.env files in the project root as you like and git will ig
 
 In addition to these, you will need to set up the `DJANGO_CONFIGURATION` and `DJANGO_SETTINGS_MODULE` variables before running Django. These values tell django (or more specifically django-configurations) which configuration to use, and where to find it. PyCharm users can do this directly in the configuration, while those running them directly can choose to add them to the .env. The values are:
 
+> If you add functionality requiring a new environment variable, make sure to update the sample - this serves as useful documentation for other devs. You should either include a real value or, if the data is sensitive (e.g. credentials) or personal (e.g. points to your personal database) include a dummy value that explains the structure, e.g. `MY_DATABASE_URL=postgres://user:password@some.server.aws.com:5432/ops_your_name
+
 ```
 DJANGO_SETTINGS_MODULE=core_app.settings
 DJANGO_CONFIGURATION=DevLoc
@@ -59,15 +61,16 @@ To sign into docker using your github credentials create a PAT (Personal Access 
 4. Select `eu-west-1` 
 5. Select `Yobota-Master, cloudmaster+master@yobota.xyz (822386150620)`
 6. Select `developers-y`
-7. Parameters are `eu-west-2`, `json`, `developers-y-822386150620`
+7. Parameters are `eu-west-2`, `json`, *(your profile name but pressing enter will default it to)* `developers-y-822386150620`
 8. Log in to google sso when it shows up and authorise access.
 9. Configure the developer environment variables in your *.aws/credentials* file or run `aws configure` and copy them in based off the variables when following the link provided and doing the steps: 
-(*AWS Account (4) -> Yobota-Master -> developers-y -> Command line or programmatic access -> Option 2*)
+
+- (*AWS Account (4) -> Yobota-Master -> developers-y -> Command line or programmatic access -> Option 2*)
 
 > After doing this initially and your *.aws/config* and *.aws/credentials* are correct, you can just use your profile tag to log in with the command `aws sso login --profile $YOUR_PROFILE without the need of repeating these steps.` 
 
 
-Finally run `aws ecr get-login-password --region eu-west-2 --profile $YOUR_PROFILE | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/` where *$YOUR_PROFILE* will be stated in the config file. 
+10. Finally run `aws ecr get-login-password --region eu-west-2 --profile $YOUR_PROFILE | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/` where *$YOUR_PROFILE* will be stated in the config file. 
 
 *Example:* `aws ecr get-login-password --region eu-west-2 --profile developers-y-822386150620 | docker login --username AWS --password-stdin http://822386150620.dkr.ecr.eu-west-2.amazonaws.com/`
 
@@ -87,17 +90,9 @@ To run the scripts to use a test look at the *scripts* file to see which one you
 `docker-compose exec -T web sh ./scripts/run_unit_tests.sh`
 
 
-### *Pycharm*
-Use **EnvFile** the pycharm extension to edit the configuration on the test you are trying to run. Select your *.env* file to use (Press the eye symbol to show hidden files) so that the test uses your environment variables you want to use.
+### *PyCharm*
+Use the PyCharm extension **EnvFile** to edit the configuration on the test you are trying to run. Select your *.env* file to use (Press the eye symbol to show hidden files) so that the test uses the environment variables you have configured.
 
-## Required environment variables
-A .env.sample file is included for convenience. This includes dummy data for environment variables.
-
-You will need to copy this file to .env and update some variables for the app to start properly. You will only need to do this once, plus occasionally update it when someone adds new variables. Typically you'll be able to tell if your environment is broken because you'll get a million failing tests and either very descriptive errors (from django-configurations) or absolutely garbage errors (from something like pylibmc). If in doubt, ask around - with any luck somebody has a working environment.
-
-If you add functionality requiring a new environment variable, make sure to update the sample - this serves as useful documentation for other devs. You should either include a real value or, if the data is sensitive (e.g. credentials) or personal (e.g. points to your personal database) include a dummy value that explains the structure, e.g. `MY_DATABASE_URL=postgres://user:password@some.server.aws.com:5432/ops_your_name`
-
-We've also created a local.env for personal data. If you have this set up in PyCharm, you should be able to simple delete the old .env and use the .env.sample without any problems. If you wish to use heroku local:run, you'll need to copy your local.env into your .env (we've left space for this). The local.env.template provides a template for this.
 
 ## Developing
 This section has useful information for during the development process.
@@ -118,63 +113,7 @@ Branches should then be called by saying what it is, the date and then a short d
 
 So, a uat release branch will look like uat_release_090518_overpayments
 
-
-## To run the Python development server:
-
-pip install -r requirements.txt
-python manage.py runserver
-Running the server (Heroku/Gunicorn style)
-To collect the front-end resources and python template infrastructure
-
-heroku local:run python manage.py runserver
-Alternatively to run it under Gunicorn
-
-gunicorn --config gunicorn_config/guniconf.py core_app.wsgi
-Testing
-Functional Tests
-The functional tests can be run against a local Dockerized instance of the Yobota platform or any instance of the platform hosted on the cloud. Follow the instructions below for each one.
-
-#####Set up a Dockerized instance of the Yobota platform
-
-You will need the following binaries installed:
-
-docker python
-
-Temporarily the docker images are stored on Github package registry. To pull them use this guide. When they will be stored in ECR you will need access keys for the Yobota AWS account to be able to pull. The access keys should be used to configure the AWS CLI.
-
-The following apps are initialised using Docker to facilitate this testing:
-
-Ops database
-Redis
-Ref data service
-Distribution API
-Integrations
-Quote store
-1 You will first need to setup the integrations.env.list based on the sample provided in the scripts folder.
-
-2 Copy the variables from scripts/local_stack_vars to your main .env (without the export part)
-
-3 Start the local stack using the following command from the project root
-
-./scripts/start_local_stack.sh
-You can stop the local stack with the following command:
-
-./scripts/stop_local_stack.sh
-4 Start an instance of yobotastaffdemo and set the correct TESTS_BASE_URL in your .env
-
-e.g. ` TESTS_BASE_URL="http://127.0.0.1:8001" `
-#####Set up for running against a remote environment
-
-ask Pavel (this will be updated soon)
-Running the tests
-After you setup your environment you can run the tests using the following command or through pycharm
-
-`./scripts/run_local_functional_tests.sh `
-To include code coverage add the --coverage flag:
-
-./scripts/run_local_functional_tests.sh --coverage
-
-./scripts/run_local_functional_tests.sh --include-stack
+## MISC
 
 Running the tests on github
 To trigger the workflow on any PR you will have to make a commit that includes 'run tests' in the commit message. This can be done with
@@ -194,10 +133,7 @@ future
 chetwood-uat
 chetwood-production
 Unit Tests
-Tests can be run by
 
-heroku local:run scripts/runtests.sh
-This simulates the way they are run on Heroku.
 
 Tests can be run internally on PyCharm too. However we have weird and patchy Django support. We're trying to fix this and the easiest way for now is to ask someone how to do it.
 
@@ -207,9 +143,6 @@ Important notes
 Testing
 The settings.TEST_RUNNER value has been deliberately overridden to core_app.setup_helpers.NoDbTestRunner which stops the typical django test database being set up and torn down when manage.py test is called. This is because, in general, Yobota apps should only be using the platform database for functional usecases
 
-
-## Private Repository
-The private repository is accessed by the option at the top of the requirements.txt file. If it goes away, look at an older version and reintroduce it.
 
 ## Configuration
 Using S3 for Static (served) and Media (uploaded) content
