@@ -1,11 +1,28 @@
 # YSD
 
-- Pull repo
-- make branch
+
+
 
 ## Getting started
 
+### Git
+We use git for version control. This allows easy development of the code.
+
+To start working on the code, checkout a new branch:
+`
+git checkout -b <branch_name>
+
+### Naming branches
+We've found it useful to use ticket numbers from the JIRA system where possible (e.g. APP-921, CP-1234)
+
+Some branch_names cannot use tickets, especially when merging or releasing to uat, or performing hot bugfixes.
+Branches should then be called by saying what it is, the date and then a short description. (So, a uat release branch will look like uat_release_090518_overpayments).
+`
+
+### Prerequisites
 Look at the *runtime.txt* file to see the required python version for this repo.
+
+> A useful tool to manage the python version is pyenv which will be useful when needing to use the appropriate version for each repo.
 
 We use **poetry** to manage our dependencies which simply uses `poetry install` to install the required modules. This can be done after setting up a python interpreter for the required version or automatically done via pycharm by configuring a poetry environment. 
 
@@ -38,20 +55,21 @@ PyCharm users should update the local.env and add it in addition to the .env, as
 You can have as many *.env files in the project root as you like and git will ignore them, so you can switch local.envs if required.
 
 In addition to these, you will need to set up the `DJANGO_CONFIGURATION` and `DJANGO_SETTINGS_MODULE` variables before running Django. These values tell django (or more specifically django-configurations) which configuration to use, and where to find it. PyCharm users can do this directly in the configuration, while those running them directly can choose to add them to the .env. The values are:
-
-> If you add functionality requiring a new environment variable, make sure to update the sample - this serves as useful documentation for other devs. You should either include a real value or, if the data is sensitive (e.g. credentials) or personal (e.g. points to your personal database) include a dummy value that explains the structure, e.g. `MY_DATABASE_URL=postgres://user:password@some.server.aws.com:5432/ops_your_name
-
 ```
 DJANGO_SETTINGS_MODULE=core_app.settings
 DJANGO_CONFIGURATION=DevLoc
 ```
 
+> If you add functionality requiring a new environment variable, make sure to update the sample - this serves as useful documentation for other devs. You should either include a real value or, if the data is sensitive (e.g. credentials) or personal (e.g. points to your personal database) include a dummy value that explains the structure, e.g. `MY_DATABASE_URL=postgres://user:password@some.server.aws.com:5432/ops_your_name
+
+
+
 ## Signing in to Docker and AWS
 
 ### *Docker*
-To sign into docker using your github credentials create a PAT (Personal Access Token) with the relevant access appropriate on your GitHub account and use it in place of `$GITHUB_TOKEN` and your username for `$GITHUB_USER`:
+To sign into Docker, create a PAT (Personal Access Token) in GitHub with the relevant access and use it in place of `$GITHUB_TOKEN` and your GitHub username for `$GITHUB_USER` in the following command:
 
-`echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u GITHUB_USER --password-stdin`
+`echo $GITHUB_TOKEN | docker login docker.pkg.github.com -u $GITHUB_USER --password-stdin`
 
 
 ### *AWS Steps*
@@ -96,22 +114,6 @@ Use the PyCharm extension **EnvFile** to edit the configuration on the test you 
 
 ## Developing
 This section has useful information for during the development process.
-
-## Git
-We use git for version control. This allows easy development of the code.
-
-To start working on the code, checkout a new branch:
-`
-git checkout -b <branch_name>
-`
-
-### Naming branches
-We've found it useful to use ticket numbers from the JIRA system where possible (e.g. APP-921, CP-1234)
-
-Some branch_names cannot use tickets, especially when merging or releasing to uat, or performing hot bugfixes.
-Branches should then be called by saying what it is, the date and then a short description.
-
-So, a uat release branch will look like uat_release_090518_overpayments
 
 ## MISC
 
