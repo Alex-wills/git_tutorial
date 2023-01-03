@@ -116,7 +116,7 @@ Use the PyCharm extension **EnvFile** to edit the configuration on the test you 
 ## Developing
 This section has useful information for during the development process.
 
-## MISC
+## Pull requests
 
 Running the tests on github
 To trigger the workflow on any PR you will have to make a commit that includes 'run tests' in the commit message. This can be done with
@@ -138,44 +138,4 @@ chetwood-production
 Unit Tests
 
 
-Tests can be run internally on PyCharm too. However we have weird and patchy Django support. We're trying to fix this and the easiest way for now is to ask someone how to do it.
-
 The PyCharm test runner at the moment is Unittest.
-
-Important notes
-Testing
-The settings.TEST_RUNNER value has been deliberately overridden to core_app.setup_helpers.NoDbTestRunner which stops the typical django test database being set up and torn down when manage.py test is called. This is because, in general, Yobota apps should only be using the platform database for functional usecases
-
-
-## Configuration
-Using S3 for Static (served) and Media (uploaded) content
-Two further environment variables can be set up to capture S3 buckets used for content management
-
-however the preference is to use WhiteNoise to serve Static files (per the current set up) and S3 for Media
-
-CLIENT_SAVINGS_APP_DOCS_URL : S3 bucket name, used to store static content served by the web page
-AWS_ACCESS_KEY_ID: required to access the S3 buckets
-AWS_SECRET_ACCESS_KEY: required to access the S3 buckets
-reference here:
-
-http://agiliq.com/blog/2014/06/heroku-django-s3-for-serving-media-files/
-https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/
-http://whitenoise.evans.io/en/stable/
-https://devcenter.heroku.com/articles/s3
-https://devcenter.heroku.com/articles/s3-upload-python
-Using Auth0 for access controls
-Important
-USE_AUTH0_WORKFLOW is required in order to use auth0 as an identity provider.
-The following keys are required if the application needs Auth0 for login support
-
-host_organisation_name_AUTH0_CLIENT_ID
-host_organisation_name_AUTH0_CLIENT_SECRET
-host_organisation_name_AUTH0_DOMAIN
-host_organisation_name_AUTH0_CONNECTION The name of the Auth0 remote database for API calls
-host_organisation_name_AUTH0_CUST_CALLBACK_URL customer specific callback
-These are found on your auth0 application settings. Additionally, the following are useful:
-
-Host_organisation_name_AUTH0_JWT -- required to call the auth0 management API (for user CRUD scopes only)
-the AUTH0_CALLBACK_URL must be a full URL: https://app.domain.uk/callback that is set up within your application
-
-Each Host organisation name in order to facilitate different branded emails and branded auth0 widgets, have their own separate Auth0 credentials, i.e. Host_organisation_name_AUTH0_CLIENT_ID would be LIVELEND_AUTH0_CLIENT_ID
