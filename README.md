@@ -107,6 +107,7 @@ To do this we can run `docker-compose up` or `docker-compose up -d` if we would 
 To run the scripts to use a test look at the *scripts* file to see which one you would like to run. An example of this is to run the unit tests by running:
 `docker-compose exec -T web sh ./scripts/run_unit_tests.sh`
 
+> If when testing you receive an error similar to: `Error 111 connecting to 0.0.0.0:XXXXX. Connection refused` then you will have to make sure your REDIS_URL in the env file has the correct port. This can be checked by typing `docker ps` and seeing what *PORT* the *IMAGE* `redis:alpine` has.
 
 ### *PyCharm*
 Use the PyCharm extension **EnvFile** to edit the configuration on the test you are trying to run. Select your *.env* file to use (Press the eye symbol to show hidden files) so that the test uses the environment variables you have configured.
